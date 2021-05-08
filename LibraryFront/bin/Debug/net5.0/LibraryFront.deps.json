@@ -1,0 +1,36 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v5.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v5.0": {
+      "LibraryFront/1.0.0": {
+        "dependencies": {
+          "LibraryBack": "1.0.0"
+        },
+        "runtime": {
+          "LibraryFront.dll": {}
+        }
+      },
+      "LibraryBack/1.0.0": {
+        "runtime": {
+          "LibraryBack.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "LibraryFront/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "LibraryBack/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
