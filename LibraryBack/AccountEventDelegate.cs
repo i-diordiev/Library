@@ -1,6 +1,6 @@
 ﻿namespace LibraryBack
 {
-    public delegate void AccountStateHandler(object sender, AccountEventArgs args);
+    public delegate void AccountEventDelegate(object sender, AccountEventArgs args);
         
     public class AccountEventArgs
     {

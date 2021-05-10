@@ -2,13 +2,13 @@
 {
     public class LibrarianAccount : Account
     {
-        protected internal override event AccountStateHandler Created;
+        protected internal override event AccountEventDelegate Created;
         
-        protected internal override event AccountStateHandler Deleted;
+        protected internal override event AccountEventDelegate Deleted;
         
-        protected internal override event AccountStateHandler LoggedIn;
+        protected internal override event AccountEventDelegate LoggedIn;
         
-        protected internal override event AccountStateHandler LoggedOut;
+        protected internal override event AccountEventDelegate LoggedOut;
 
         public LibrarianAccount(int userId, int amount): base(userId, amount) {}
         

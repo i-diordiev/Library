@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using LibraryBack;
 
 namespace LibraryFront
@@ -8,7 +9,7 @@ namespace LibraryFront
     {
         static void Main()
         {
-            Library Bibla = new Library("My Bibla", AddedBookHandler, RemovedBookHandler);
+            Library Bibla = new Library("My Bibla", StorageEventHandler);
             ShowStartMenu(Bibla);
         }
 
@@ -38,13 +39,9 @@ namespace LibraryFront
                                               "2. Admin");
                             t = Convert.ToInt32(Console.ReadLine());
                             if (t == 1)
-                                lib.AddAccount(AccountType.User, CreatedHandler, DeletedHandler,
-                                    TakenBookHandler, ReturnedBookHandler, 
-                                    LoggedInHandler, LoggedOutHandler);
+                                lib.AddAccount(AccountType.User, AccountEventHandler);
                             else if (t == 2)
-                                lib.AddAccount(AccountType.Librarian, CreatedHandler, DeletedHandler,
-                                    TakenBookHandler, ReturnedBookHandler, 
-                                    LoggedInHandler, LoggedOutHandler);
+                                lib.AddAccount(AccountType.Librarian, AccountEventHandler);
                             else
                                 Console.WriteLine("Please, choose 1 or 2");
                         }
@@ -66,14 +63,14 @@ namespace LibraryFront
                             Console.WriteLine("Ented ID of your account\n");
                             int id = Convert.ToInt32(Console.ReadLine());
                             if (t == 1)
-                            {
-                                Account acc = lib.Login(AccountType.User, id);
+                            { 
+                                UserAccount acc = lib.Login(AccountType.User, id) as UserAccount;
                                 Console.Clear();
                                 ShowUserMenu(lib, acc);
                             }
                             else if (t == 2)
                             {
-                                Account acc = lib.Login(AccountType.User, id);
+                                LibrarianAccount acc = lib.Login(AccountType.User, id) as LibrarianAccount;
                                 Console.Clear();
                                 ShowAdminMenu(lib, acc);
                             }
@@ -98,7 +95,7 @@ namespace LibraryFront
             }
         }
 
-        static void ShowUserMenu(Library lib, Account account)
+        static void ShowUserMenu(Library lib, UserAccount account)
         {
             ConsoleColor color = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.DarkGreen;
@@ -110,11 +107,12 @@ namespace LibraryFront
             while (alive)
             {
                 Console.WriteLine("List of options:\n" +
-                                  "1. Find book\n" +
-                                  "2. Take book\n" +
-                                  "3. Return book\n" +
-                                  "4. Delete account" +
-                                  "5. Log out\n");
+                                  "1. View my books\n" +
+                                  "2. Find book\n" +
+                                  "3. Take book\n" +
+                                  "4. Return book\n" +
+                                  "5. Delete account\n" +
+                                  "6. Log out\n");
                 Console.WriteLine("Choose option: ");
                 int option = Convert.ToInt32(Console.ReadLine());
                 int id;
@@ -193,7 +191,7 @@ namespace LibraryFront
             }
         }
 
-        static void ShowAdminMenu(Library lib, Account account)
+        static void ShowAdminMenu(Library lib, LibrarianAccount account)
         {
             ConsoleColor color = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.DarkGreen;
@@ -207,12 +205,14 @@ namespace LibraryFront
                 Console.WriteLine("List of options:\n" +
                                   "1. Add book to library\n" +
                                   "2. Remove book from library\n" +
-                                  "3. Find book\n" +
-                                  "4. View my books\n" +
-                                  "5. Take book\n" +
-                                  "6. Return book\n" +
-                                  "7. Delete account\n" +
-                                  "8. Log out\n");
+                                  "3. Import books from CSV\n" +
+                                  "4. Export books to CSV\n" +
+                                  "5. Find book\n" +
+                                  "6. View my books\n" +
+                                  "7. Take book\n" +
+                                  "8. Return book\n" +
+                                  "9. Delete account\n" +
+                                  "10. Log out\n");
                                   Console.WriteLine("Choose option: ");
                 int option = Convert.ToInt32(Console.ReadLine());
                 int id;
@@ -227,14 +227,14 @@ namespace LibraryFront
                         string theme = Console.ReadLine();
                         Console.Write("Enter quantity: ");
                         int quantity = Convert.ToInt32(Console.ReadLine());
-                        lib.AddBook(name, author, theme, quantity);
+                        account.AddBook(lib, name, author, theme, quantity);
                         break;
                     case 2:
                         try
                         {
                             Console.Write("Enter book ID: ");
                             id = Convert.ToInt32(Console.ReadLine());
-                            lib.RemoveBook(id);
+                            account.RemoveBook(lib, id);
 
                         }
                         catch (Exception ex)
@@ -247,9 +247,38 @@ namespace LibraryFront
                         
                         break;
                     case 3:
-                        FindBookMenu(lib);
+                        Console.WriteLine("Type path to csv file: ");
+                        string path = Console.ReadLine();
+                        using (var reader = new StreamReader(@path))
+                        {
+                            while (!reader.EndOfStream)
+                            {
+                                var line = reader.ReadLine();
+                                var values = line.Split(",");
+                                lib.AddBook(values[0], values[1], values[2], Convert.ToInt32(values[3]));
+                            }
+                        }
+                        Console.WriteLine("Import successful!");
                         break;
                     case 4:
+                        Console.WriteLine("Type path to csv file: ");
+                        string path1 = Console.ReadLine();
+                        using (StreamWriter writer = new StreamWriter(@path1, false))
+                        {
+                            List<Book> books = lib.FindBook(SearchType.ByAuthor, "");
+                            foreach (Book book in books)
+                            {
+                                string text = book.Name + "," + book.Author + "," + book.Theme + "," +
+                                              Convert.ToString(book.Quantity);
+                                writer.WriteLine(text);
+                            }
+                        }
+                        Console.WriteLine("Export successful!");
+                        break;
+                    case 5:
+                        FindBookMenu(lib);
+                        break;
+                    case 6:
                         if (account.MyBooks.Count == 0)
                             Console.WriteLine("You have no books");
                         else
@@ -263,7 +292,7 @@ namespace LibraryFront
                             }
                         }
                         break;
-                    case 5:
+                    case 7:
                         try
                         {
                             Console.Write("Enter book ID: ");
@@ -278,7 +307,7 @@ namespace LibraryFront
                             Console.ForegroundColor = color;
                         }
                         break;
-                    case 6:
+                    case 8:
                         try
                         {
                             Console.Write("Enter book ID: ");
@@ -293,7 +322,7 @@ namespace LibraryFront
                             Console.ForegroundColor = color;
                         }
                         break;
-                    case 7:
+                    case 9:
                         try
                         {
                             Console.Write("Type \"DELETE MY ACCOUNT\" to proceed: ");
@@ -311,7 +340,7 @@ namespace LibraryFront
                             Console.ForegroundColor = color;
                         }
                         break;
-                    case 8:
+                    case 10:
                         Console.Clear();
                         alive = false;
                         break;
@@ -352,52 +381,28 @@ namespace LibraryFront
                 Console.WriteLine("List of suitable books:");
                 for (int i = 0; i < suitableBooks.Count; i++)
                 {
-                    Console.Write(i + 1);
-                    Console.WriteLine(".\tName: " + suitableBooks[i].Name + "\n\tAuthor: " + suitableBooks[i].Author +
-                                      "\n\tTheme: " + suitableBooks[i].Theme + "\n\tID: " + suitableBooks[i].ID + 
-                                      "\n\tAvailable: " + suitableBooks[i].Available + " books\n");
+                    Book book = suitableBooks[i];
+                    Console.WriteLine((i + 1) + ".\tName: " + book.Name + "\n\tAuthor: " + book.Author +
+                                      "\n\tTheme: " + book.Theme + "\n\tID: " + book.ID + 
+                                      "\n\tAvailable: " + book.Available + " books\n");
                 }
             }
         }
-        
-        private static void CreatedHandler(object sender, AccountEventArgs args)
+
+        private static void AccountEventHandler(object sender, AccountEventArgs args)
         {
+            ConsoleColor color = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine(args.Message);
+            Console.ForegroundColor = color;
         }
         
-        private static void DeletedHandler(object sender, AccountEventArgs args)
+        private static void StorageEventHandler(object sender, StorageEventArgs args)
         {
+            ConsoleColor color = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(args.Message);
-        }
-        
-        private static void TakenBookHandler(object sender, AccountEventArgs args)
-        {
-            Console.WriteLine(args.Message);
-        }
-        
-        private static void ReturnedBookHandler(object sender, AccountEventArgs args)
-        {
-            Console.WriteLine(args.Message);
-        }
-        
-        private static void LoggedInHandler(object sender, AccountEventArgs args)
-        {
-            Console.WriteLine(args.Message);
-        }
-        
-        private static void LoggedOutHandler(object sender, AccountEventArgs args)
-        {
-            Console.WriteLine(args.Message);
-        }
-        
-        private static void AddedBookHandler(object sender, StorageEventArgs args)
-        {
-            Console.WriteLine(args.Message);
-        }
-        
-        private static void RemovedBookHandler(object sender, StorageEventArgs args)
-        {
-            Console.WriteLine(args.Message);
+            Console.ForegroundColor = color;
         }
     }
 }

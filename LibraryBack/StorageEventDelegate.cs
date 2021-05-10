@@ -1,6 +1,6 @@
 ﻿namespace LibraryBack
 {
-    public delegate void StorageStateHandler(object sender, StorageEventArgs args);
+    public delegate void StorageEventDelegate(object sender, StorageEventArgs args);
     
     public class StorageEventArgs
     {

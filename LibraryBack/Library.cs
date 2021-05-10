@@ -17,9 +17,9 @@ namespace LibraryBack
     public class Library
 
     {
-        protected internal event StorageStateHandler AddedBook;
+        protected internal event StorageEventDelegate AddedBook;
         
-        protected internal event StorageStateHandler RemovedBook;
+        protected internal event StorageEventDelegate RemovedBook;
         public string Name { get; private set; }
 
         private List<UserAccount> Users;
@@ -32,31 +32,29 @@ namespace LibraryBack
 
         private static int _totalBooks = 0;
 
-        public Library(string name, StorageStateHandler addedHandler, StorageStateHandler removedHandler)
+        public Library(string name, StorageEventDelegate storageEventHandler)
         {
             Name = name;
-            AddedBook += addedHandler;
-            RemovedBook += removedHandler;
+            AddedBook += storageEventHandler;
+            RemovedBook += storageEventHandler;
             Users = new List<UserAccount>();
             Admins = new List<LibrarianAccount>();
             Books = new List<Book>();
         }
       
         public void AddAccount(AccountType type,
-            AccountStateHandler createdHandler, AccountStateHandler deletedHandler,
-            AccountStateHandler takenHandler, AccountStateHandler returnedHandler,
-            AccountStateHandler loggedInHandler, AccountStateHandler loggedOutHandler)
+            AccountEventDelegate accountEventHandler)
         {
             switch (type)
             {
                 case AccountType.Librarian:
                     LibrarianAccount newAdmin = new LibrarianAccount(_totalAccounts++, 10000);
-                    newAdmin.Created += createdHandler;
-                    newAdmin.Deleted += deletedHandler;
-                    newAdmin.TakenBook += takenHandler;
-                    newAdmin.ReturnedBook += returnedHandler;
-                    newAdmin.LoggedIn += loggedInHandler;
-                    newAdmin.LoggedOut += loggedOutHandler;
+                    newAdmin.Created += accountEventHandler;
+                    newAdmin.Deleted += accountEventHandler;
+                    newAdmin.TakenBook += accountEventHandler;
+                    newAdmin.ReturnedBook += accountEventHandler;
+                    newAdmin.LoggedIn += accountEventHandler;
+                    newAdmin.LoggedOut += accountEventHandler;
 
                     Admins.Add(newAdmin);
                     newAdmin.Create();
@@ -64,12 +62,12 @@ namespace LibraryBack
                 case AccountType.User:
                     UserAccount newUser = new UserAccount(_totalAccounts++, 10);
                     
-                    newUser.Created += createdHandler;
-                    newUser.Deleted += deletedHandler;
-                    newUser.TakenBook += takenHandler;
-                    newUser.ReturnedBook += returnedHandler;
-                    newUser.LoggedIn += loggedInHandler;
-                    newUser.LoggedOut += loggedOutHandler;
+                    newUser.Created += accountEventHandler;
+                    newUser.Deleted += accountEventHandler;
+                    newUser.TakenBook += accountEventHandler;
+                    newUser.ReturnedBook += accountEventHandler;
+                    newUser.LoggedIn += accountEventHandler;
+                    newUser.LoggedOut += accountEventHandler;
 
                     Users.Add(newUser);
                     newUser.Create();

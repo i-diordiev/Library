@@ -6,17 +6,17 @@ namespace LibraryBack
     
     public abstract class Account : IAccount
     {
-        protected internal virtual event AccountStateHandler Created;
+        protected internal virtual event AccountEventDelegate Created;
         
-        protected internal virtual event AccountStateHandler Deleted;
+        protected internal virtual event AccountEventDelegate Deleted;
         
-        protected internal virtual event AccountStateHandler LoggedIn;
+        protected internal virtual event AccountEventDelegate LoggedIn;
         
-        protected internal virtual event AccountStateHandler LoggedOut;
+        protected internal virtual event AccountEventDelegate LoggedOut;
         
-        protected internal event AccountStateHandler TakenBook;
+        protected internal event AccountEventDelegate TakenBook;
         
-        protected internal event AccountStateHandler ReturnedBook;
+        protected internal event AccountEventDelegate ReturnedBook;
         
         public int Id { get; private set; }
 
