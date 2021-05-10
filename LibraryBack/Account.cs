@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace LibraryBack
 {
@@ -21,12 +22,13 @@ namespace LibraryBack
 
         public int Available { get; private set; }
 
-        public int[] MyBooks;
+        public List<Book> MyBooks;
 
         public Account(int id, int amount)
         {
             Id = id;
             Available = amount;
+            MyBooks = new List<Book>();
         }
 
         public virtual void Create()
@@ -54,27 +56,18 @@ namespace LibraryBack
             if (Available > 0)
             {
                 bool isMyBook = false;
-                for (int i = 0; i < MyBooks.Length; i++)
+                for (int i = 0; i < MyBooks.Count; i++)
                 {
-                    if (MyBooks[i] == bookId)
+                    if (MyBooks[i].ID == bookId)
                         isMyBook = true;
                 }
 
                 if (!isMyBook)
                 {
-                    lib.GiveBook(bookId);
+                    Book newBook = lib.GiveBook(bookId);
                     TakenBook?.Invoke(this,
                             new AccountEventArgs("You've taken book #" + bookId + ", your account #" + Id, Id));
-                    if (MyBooks == null)
-                        MyBooks = new[] {bookId};
-                    else
-                    {
-                        int[] tempArray = new int[MyBooks.Length + 1];
-                        for (int i = 0; i < MyBooks.Length; i++)
-                            tempArray[i] = MyBooks[i];
-                        tempArray[MyBooks.Length] = bookId;
-                        MyBooks = tempArray;
-                    }
+                    MyBooks.Add(newBook);
                     Available--;
                 }
                 else
@@ -87,30 +80,19 @@ namespace LibraryBack
 
         public void ReturnBook(Library lib, int bookId)
         {
-            bool isMyBook = false;
-            for (int i = 0; i < MyBooks.Length; i++)
+            Book book = null;
+            for (int i = 0; i < MyBooks.Count; i++)
             {
-                if (MyBooks[i] == bookId)
-                    isMyBook = true;
+                if (MyBooks[i].ID == bookId)
+                    book = MyBooks[i];
             }
 
-            if (isMyBook)
+            if (book != null)
             {
                 lib.TakeBook(bookId);
                 ReturnedBook?.Invoke(this,
                         new AccountEventArgs("You've returned book #" + bookId + ", your account #" + Id, Id));
-                int[] tempArray = new int[MyBooks.Length - 1];
-                bool isDeleted = false;
-                for (int i = 0; i < MyBooks.Length; i++)
-                {
-                    if (MyBooks[i] == bookId)
-                        isDeleted = true;
-                    if (isDeleted)
-                        tempArray[i] = MyBooks[i + 1];
-                    else
-                        tempArray[i] = MyBooks[i];
-                }
-                MyBooks = tempArray;
+                MyBooks.Remove(book);
                 Available++;
             }
             else
