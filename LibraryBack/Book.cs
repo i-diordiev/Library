@@ -2,6 +2,9 @@
 
 namespace LibraryBack
 {
+    /// <summary>
+    /// Class that describe book. Has ID, name, author, theme and quantity
+    /// </summary>
     public class Book
     {
         public int ID { get; private set; }
@@ -12,7 +15,7 @@ namespace LibraryBack
         
         public string Theme { get; private set; }
         
-        public int Quantity { get; protected set; }
+        public int Quantity { get; private set; }
         
         public int Available { get; protected internal set; }
 

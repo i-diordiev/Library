@@ -1,5 +1,8 @@
 ﻿namespace LibraryBack
 {
+    /// <summary>
+    /// So, it is interface. It has some abstract methods. They must be realised in inheritors....idk what else to write here...
+    /// </summary>
     public interface IAccount
     {
         public void LogIn();

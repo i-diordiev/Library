@@ -3,35 +3,47 @@ using System.Collections.Generic;
 
 namespace LibraryBack
 {
+    /// <summary>
+    /// Types of accounts
+    /// </summary>
     public enum AccountType
     {
         User,
         Librarian
     }
 
+    /// <summary>
+    /// Searching books types
+    /// </summary>
     public enum SearchType
     {
         ByName, ByAuthor, ByTheme
     }
 
+    
+    /// <summary>
+    /// Main class. Has users, admins, books. Can add/remove user, give/take book, add/remove book. Controlled by admin (librarian).
+    /// </summary>
     public class Library
-
     {
         protected internal event StorageEventDelegate AddedBook;
         
         protected internal event StorageEventDelegate RemovedBook;
-        public string Name { get; private set; }
+        public string Name { get; }
 
         private List<UserAccount> Users;
 
         private List<LibrarianAccount> Admins;
         
-        private static int _totalAccounts = 0;
+        private static int _totalAccounts = 0;  // global count of registered accounts
 
-        private List<Book> Books;
+        public List<Book> Books { get; }  // list of books
 
-        private static int _totalBooks = 0;
-
+        private static int _totalBooks = 0;  // global count of books
+        
+        /// <summary>
+        /// Constructor. Requires name of library and some handler of storage events (like adding and removing book).
+        /// </summary>
         public Library(string name, StorageEventDelegate storageEventHandler)
         {
             Name = name;
@@ -41,7 +53,10 @@ namespace LibraryBack
             Admins = new List<LibrarianAccount>();
             Books = new List<Book>();
         }
-      
+        
+        /// <summary>
+        /// Adds account. Requires type of account (admin/user) and some handler of account events.
+        /// </summary>
         public void AddAccount(AccountType type,
             AccountEventDelegate accountEventHandler)
         {
@@ -75,6 +90,9 @@ namespace LibraryBack
             }
         }
 
+        /// <summary>
+        /// Removes account. Requires ID of account. Warning! Account can't be removed if it has unreturned books!
+        /// </summary>
         public void RemoveAccount(int userid)
         {
             int pos = 0;
@@ -102,6 +120,9 @@ namespace LibraryBack
             }
         }
         
+        /// <summary>
+        /// Finds account. Requires ID.
+        /// </summary>
         private Account FindAccount(int id)
         {
             for (int i = 0; i < Users.Count; i++)
@@ -121,6 +142,9 @@ namespace LibraryBack
             return null;
         }
         
+        /// <summary>
+        /// Overloaded version of FindAccount. Requires ID and some int number to save position of account in list of users.
+        /// </summary>
         private Account FindAccount(int id, ref int pos)
         {
             if (Users == null || Users.Count == 0)
@@ -146,6 +170,9 @@ namespace LibraryBack
             return null;
         }
 
+        /// <summary>
+        /// Log in. Requires account type (user/admin) and ID.
+        /// </summary>
         public Account Login(AccountType type, int id)
         {
             Account acc = FindAccount(id);
@@ -158,6 +185,9 @@ namespace LibraryBack
             return acc;
         }
 
+        /// <summary>
+        /// Adds book to storage. Requires name of book, author name, thematics and quantity. ID will be given automatically.
+        /// </summary>
         public void AddBook(string name, string author, string theme, int quantity)
         {
             int bookId = _totalBooks++;
@@ -166,18 +196,29 @@ namespace LibraryBack
             AddedBook?.Invoke(this, new StorageEventArgs("You've successfully added new book, ID - " + bookId, bookId));
         }
 
+        /// <summary>
+        /// Removes book from storage. Warning! Book can't be removed if book 
+        /// </summary>
         public void RemoveBook(int bookid)
         {
             int pos = 0;
             Book b = FindBookById(bookid, ref pos);
             if (b != null)
             {
-                Books.RemoveAt(pos);
-                RemovedBook?.Invoke(this, new StorageEventArgs("You've successfully removed book from library \""
-                                                       + Name + "\", book ID - " + bookid, bookid));
+                if (b.Available == b.Quantity)
+                {
+                    Books.RemoveAt(pos);
+                    RemovedBook?.Invoke(this, new StorageEventArgs("You've successfully removed book from library \""
+                                                                   + Name + "\", book ID - " + bookid, bookid));
+                }
+                else
+                    throw new Exception("Not all users returned this book!");
             }
         }
 
+        /// <summary>
+        /// Finds list of books. Requires search type (by name/author/theme) and some string with data.
+        /// </summary>
         public List<Book> FindBook(SearchType type, string param)
         {
             List<Book> arrayToReturn = new List<Book>();
@@ -203,6 +244,9 @@ namespace LibraryBack
             return arrayToReturn;
         }
         
+        /// <summary>
+        /// Used to taking/returning book by user. Requires ID.
+        /// </summary>
         private Book FindBookById(int bookid)
         {
             for (int i = 0; i < Books.Count; i++)
@@ -215,6 +259,9 @@ namespace LibraryBack
             return null;
         }
 
+        /// <summary>
+        /// Overloaded version. Requires ID and some int number to save position in books list.
+        /// </summary>
         private Book FindBookById(int bookid, ref int pos)
         {
             for (int i = 0; i < Books.Count; i++)
@@ -228,6 +275,9 @@ namespace LibraryBack
             return null;
         }
 
+        /// <summary>
+        /// Gives book to user. Requires ID.
+        /// </summary>
         public Book GiveBook(int bookid)
         {
             Book book = FindBookById(bookid);
@@ -242,6 +292,9 @@ namespace LibraryBack
                 throw new Exception("This book in no longer available!");
         }
 
+        /// <summary>
+        /// Takes book from user. Requires ID.
+        /// </summary>
         public void TakeBook(int bookid)
         {
             Book book = FindBookById(bookid);

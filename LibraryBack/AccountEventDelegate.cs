@@ -1,5 +1,8 @@
 ﻿namespace LibraryBack
 {
+    /// <summary>
+    /// used to bind front and back
+    /// </summary>
     public delegate void AccountEventDelegate(object sender, AccountEventArgs args);
         
     public class AccountEventArgs

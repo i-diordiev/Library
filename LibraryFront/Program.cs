@@ -10,9 +10,49 @@ namespace LibraryFront
         static void Main()
         {
             Library Bibla = new Library("My Bibla", StorageEventHandler);
+            
+            Console.Write("Do you want to import list of books from .csv file? (Y/N) ");  // asking to export books from previous run
+            string answer = Console.ReadLine().ToLower();
+            if (answer == "y")  // if yes, import books from .csv file
+            {
+                Console.WriteLine("Type name of .csv: ");
+                string fileName = Console.ReadLine();
+                using (var reader = new StreamReader(fileName))
+                {
+                    while (!reader.EndOfStream)
+                    {
+                        var line = reader.ReadLine();
+                        var values = line.Split(",");
+                        Bibla.AddBook(values[0], values[1], values[2], Convert.ToInt32(values[3]));
+                    }
+                }
+                Console.WriteLine("Import successful!");
+            }
+
             ShowStartMenu(Bibla);
+            
+            Console.Write("Do you want to export list of books to .csv file? (Y/N) ");  // asking to save books from library to .csv file
+            answer = Console.ReadLine().ToLower();
+            if (answer == "y")  // if yes, writing list ot .csv
+            {
+                Console.WriteLine("Type name of .csv: ");
+                string fileName = Console.ReadLine();
+                using (var writer = new StreamWriter(fileName))
+                {
+                    foreach (Book book in Bibla.Books)
+                    {
+                        string text = book.Name + "," + book.Author + "," + book.Theme + "," +
+                                      Convert.ToString(book.Quantity);
+                        writer.WriteLine(text);
+                    }
+                }
+                Console.WriteLine("Export successful!");
+            }
         }
 
+        /// <summary>
+        /// Shows menu of unregistered user (start menu).
+        /// </summary>
         static void ShowStartMenu(Library lib)
         {
             ConsoleColor color = Console.ForegroundColor;
@@ -89,12 +129,16 @@ namespace LibraryFront
                         FindBookMenu(lib);
                         break;
                     case 4:
+                        Console.ForegroundColor = color;
                         alive = false;
                         break;
                 }
             }
         }
 
+        /// <summary>
+        /// Shows user menu.
+        /// </summary>
         static void ShowUserMenu(Library lib, UserAccount account)
         {
             ConsoleColor color = Console.ForegroundColor;
@@ -191,6 +235,9 @@ namespace LibraryFront
             }
         }
 
+        /// <summary>
+        /// Shows admin menu.
+        /// </summary>
         static void ShowAdminMenu(Library lib, LibrarianAccount account)
         {
             ConsoleColor color = Console.ForegroundColor;
@@ -205,14 +252,12 @@ namespace LibraryFront
                 Console.WriteLine("List of options:\n" +
                                   "1. Add book to library\n" +
                                   "2. Remove book from library\n" +
-                                  "3. Import books from CSV\n" +
-                                  "4. Export books to CSV\n" +
-                                  "5. Find book\n" +
-                                  "6. View my books\n" +
-                                  "7. Take book\n" +
-                                  "8. Return book\n" +
-                                  "9. Delete account\n" +
-                                  "10. Log out\n");
+                                  "3. Find book\n" +
+                                  "4. View my books\n" +
+                                  "5. Take book\n" +
+                                  "6. Return book\n" +
+                                  "7. Delete account\n" +
+                                  "8. Log out\n");
                                   Console.WriteLine("Choose option: ");
                 int option = Convert.ToInt32(Console.ReadLine());
                 int id;
@@ -247,38 +292,9 @@ namespace LibraryFront
                         
                         break;
                     case 3:
-                        Console.WriteLine("Type path to csv file: ");
-                        string path = Console.ReadLine();
-                        using (var reader = new StreamReader(@path))
-                        {
-                            while (!reader.EndOfStream)
-                            {
-                                var line = reader.ReadLine();
-                                var values = line.Split(",");
-                                lib.AddBook(values[0], values[1], values[2], Convert.ToInt32(values[3]));
-                            }
-                        }
-                        Console.WriteLine("Import successful!");
-                        break;
-                    case 4:
-                        Console.WriteLine("Type path to csv file: ");
-                        string path1 = Console.ReadLine();
-                        using (StreamWriter writer = new StreamWriter(@path1, false))
-                        {
-                            List<Book> books = lib.FindBook(SearchType.ByAuthor, "");
-                            foreach (Book book in books)
-                            {
-                                string text = book.Name + "," + book.Author + "," + book.Theme + "," +
-                                              Convert.ToString(book.Quantity);
-                                writer.WriteLine(text);
-                            }
-                        }
-                        Console.WriteLine("Export successful!");
-                        break;
-                    case 5:
                         FindBookMenu(lib);
                         break;
-                    case 6:
+                    case 4:
                         if (account.MyBooks.Count == 0)
                             Console.WriteLine("You have no books");
                         else
@@ -292,7 +308,7 @@ namespace LibraryFront
                             }
                         }
                         break;
-                    case 7:
+                    case 5:
                         try
                         {
                             Console.Write("Enter book ID: ");
@@ -307,7 +323,7 @@ namespace LibraryFront
                             Console.ForegroundColor = color;
                         }
                         break;
-                    case 8:
+                    case 6:
                         try
                         {
                             Console.Write("Enter book ID: ");
@@ -322,7 +338,7 @@ namespace LibraryFront
                             Console.ForegroundColor = color;
                         }
                         break;
-                    case 9:
+                    case 7:
                         try
                         {
                             Console.Write("Type \"DELETE MY ACCOUNT\" to proceed: ");
@@ -340,7 +356,7 @@ namespace LibraryFront
                             Console.ForegroundColor = color;
                         }
                         break;
-                    case 10:
+                    case 8:
                         Console.Clear();
                         alive = false;
                         break;
@@ -389,6 +405,9 @@ namespace LibraryFront
             }
         }
 
+        /// <summary>
+        /// Handler of account events (created, removed, book has been taken etc.).
+        /// </summary>
         private static void AccountEventHandler(object sender, AccountEventArgs args)
         {
             ConsoleColor color = Console.ForegroundColor;
@@ -397,6 +416,9 @@ namespace LibraryFront
             Console.ForegroundColor = color;
         }
         
+        /// <summary>
+        /// Handler of library events (added book, removed book).
+        /// </summary>
         private static void StorageEventHandler(object sender, StorageEventArgs args)
         {
             ConsoleColor color = Console.ForegroundColor;
