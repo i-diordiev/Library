@@ -1,13 +1,11 @@
-﻿using System.Xml;
-
-namespace LibraryBack
+﻿namespace LibraryBack
 {
     /// <summary>
     /// Class that describe book. Has ID, name, author, theme and quantity
     /// </summary>
     public class Book
     {
-        public int ID { get; private set; }
+        public int Id { get; private set; }
         
         public string Name { get; private set; }
         
@@ -21,7 +19,7 @@ namespace LibraryBack
 
         public Book(int bookId, string name, string author, string theme, int quantity)
         {
-            ID = bookId;
+            Id = bookId;
             Name = name;
             Author = author;
             Theme = theme;

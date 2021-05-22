@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using LibraryBack.Accounts;
+using LibraryBack.Exceptions;
 
 namespace LibraryBack
 {
@@ -9,7 +11,8 @@ namespace LibraryBack
     public enum AccountType
     {
         User,
-        Librarian
+        Librarian,
+        None
     }
 
     /// <summary>
@@ -20,7 +23,6 @@ namespace LibraryBack
         ByName, ByAuthor, ByTheme
     }
 
-    
     /// <summary>
     /// Main class. Has users, admins, books. Can add/remove user, give/take book, add/remove book. Controlled by admin (librarian).
     /// </summary>
@@ -63,7 +65,7 @@ namespace LibraryBack
             switch (type)
             {
                 case AccountType.Librarian:
-                    LibrarianAccount newAdmin = new LibrarianAccount(_totalAccounts++, 10000);
+                    LibrarianAccount newAdmin = new LibrarianAccount(++_totalAccounts, 10000);
                     newAdmin.Created += accountEventHandler;
                     newAdmin.Deleted += accountEventHandler;
                     newAdmin.TakenBook += accountEventHandler;
@@ -75,7 +77,7 @@ namespace LibraryBack
                     newAdmin.Create();
                     break;
                 case AccountType.User:
-                    UserAccount newUser = new UserAccount(_totalAccounts++, 10);
+                    UserAccount newUser = new UserAccount(++_totalAccounts, 10);
                     
                     newUser.Created += accountEventHandler;
                     newUser.Deleted += accountEventHandler;
@@ -96,48 +98,50 @@ namespace LibraryBack
         public void RemoveAccount(int userid)
         {
             int pos = 0;
-            Account acc = FindAccount(userid, ref pos);
+            AccountType type = AccountType.None;
+            var acc = FindAccount(userid, ref type, ref pos);
             if (acc != null)
             {
-                if (acc is UserAccount)
+                if (acc.MyBooks.Count != 0)
+                    throw new BooksNotReturnedException();
+                acc.Delete();
+                
+                if (type == AccountType.User)
                 {
-                    if (acc.MyBooks.Count != 0)
-                        throw new Exception(
-                            "You can't delete this account! You need return all books that you've taken.");
-                    else
-                        Users.RemoveAt(pos);
+                    Users.RemoveAt(pos);
                 }
-                else if (acc is LibrarianAccount)
+                else if (type == AccountType.Librarian)
                 {
-                    if (acc.MyBooks.Count != 0)
-                        throw new Exception(
-                            "You can't delete this account! You need return all books that you've taken.");
-                    else
-                        Admins.RemoveAt(pos);
+                    Admins.RemoveAt(pos);
                 }
                 else
-                    throw new Exception("Something has gone wrong");
+                    throw new Exception("Something has gone wrong!");
             }
+            else
+                throw new Exception("Account not found!");
         }
         
         /// <summary>
         /// Finds account. Requires ID.
         /// </summary>
-        private Account FindAccount(int id)
+        private Account FindAccount(int id, AccountType type)
         {
-            for (int i = 0; i < Users.Count; i++)
+            switch (type)
             {
-                if (Users[i].Id == id)
-                {
-                    return Users[i];
-                }
-            }
-            for (int i = 0; i < Admins.Count; i++)
-            {
-                if (Admins[i].Id == id)
-                {
-                    return Admins[i];
-                }
+                case AccountType.User:
+                    foreach (UserAccount user in Users)
+                    {
+                        if (user.Id == id)
+                            return user;
+                    }
+                    break;
+                case AccountType.Librarian:
+                    foreach (LibrarianAccount admin in Admins)
+                    {
+                        if (admin.Id == id)
+                            return admin;
+                    }
+                    break;
             }
             return null;
         }
@@ -145,24 +149,22 @@ namespace LibraryBack
         /// <summary>
         /// Overloaded version of FindAccount. Requires ID and some int number to save position of account in list of users.
         /// </summary>
-        private Account FindAccount(int id, ref int pos)
+        private Account FindAccount(int id, ref AccountType type, ref int pos)
         {
-            if (Users == null || Users.Count == 0)
-                return null;
             for (int i = 0; i < Users.Count; i++)
             {
                 if (Users[i].Id == id)
                 {
+                    type = AccountType.User;
                     pos = i;
                     return Users[i];
                 }
             }
-            if (Admins == null || Admins.Count == 0)
-                return null;
             for (int i = 0; i < Admins.Count; i++)
             {
                 if (Admins[i].Id == id)
                 {
+                    type = AccountType.Librarian;
                     pos = i;
                     return Admins[i];
                 }
@@ -175,13 +177,11 @@ namespace LibraryBack
         /// </summary>
         public Account Login(AccountType type, int id)
         {
-            Account acc = FindAccount(id);
+            var acc = FindAccount(id, type);
             if (acc != null)
-            {
                 acc.LogIn();
-            }
             else
-                throw new Exception("Wrong ID!");
+                throw new WrongIdException();
             return acc;
         }
 
@@ -190,10 +190,10 @@ namespace LibraryBack
         /// </summary>
         public void AddBook(string name, string author, string theme, int quantity)
         {
-            int bookId = _totalBooks++;
+            int bookId = ++_totalBooks;
             Book newBook = new Book(bookId, name, author, theme, quantity);
             Books.Add(newBook);
-            AddedBook?.Invoke(this, new StorageEventArgs("You've successfully added new book, ID - " + bookId, bookId));
+            AddedBook?.Invoke(this, new StorageEventArgs("You've successfully added new book, ID: " + bookId, bookId));
         }
 
         /// <summary>
@@ -209,10 +209,10 @@ namespace LibraryBack
                 {
                     Books.RemoveAt(pos);
                     RemovedBook?.Invoke(this, new StorageEventArgs("You've successfully removed book from library \""
-                                                                   + Name + "\", book ID - " + bookid, bookid));
+                                                                   + Name + "\", book ID: " + bookid, bookid));
                 }
                 else
-                    throw new Exception("Not all users returned this book!");
+                    throw new BooksNotReturnedException();
             }
         }
 
@@ -222,9 +222,8 @@ namespace LibraryBack
         public List<Book> FindBook(SearchType type, string param)
         {
             List<Book> arrayToReturn = new List<Book>();
-            for (int i = 0; i < Books.Count; i++)
+            foreach (Book currentBook in Books)
             {
-                Book currentBook = Books[i];
                 bool isSuitable = false;
                 switch (type)
                 {
@@ -249,11 +248,11 @@ namespace LibraryBack
         /// </summary>
         private Book FindBookById(int bookid)
         {
-            for (int i = 0; i < Books.Count; i++)
+            foreach (Book book in Books)
             {
-                if (Books[i].ID == bookid)
+                if (book.Id == bookid)
                 {
-                    return Books[i];
+                    return book;
                 }
             }
             return null;
@@ -266,7 +265,7 @@ namespace LibraryBack
         {
             for (int i = 0; i < Books.Count; i++)
             {
-                if (Books[i].ID == bookid)
+                if (Books[i].Id == bookid)
                 {
                     pos = i;
                     return Books[i];
@@ -282,14 +281,14 @@ namespace LibraryBack
         {
             Book book = FindBookById(bookid);
             if (book == null)
-                throw new Exception("Book not found!");
-            else if (book.Available > 0)
+                throw new WrongIdException();
+            if (book.Available > 0)
             {
                 book.Available--;
                 return book;
             }
             else
-                throw new Exception("This book in no longer available!");
+                throw new BookNotAvailableException();
         }
 
         /// <summary>
@@ -299,9 +298,8 @@ namespace LibraryBack
         {
             Book book = FindBookById(bookid);
             if (book == null)
-                throw new Exception("Book not found!");
-            else
-                book.Available++;
+                throw new WrongIdException();
+            book.Available++;
         }
     }
 }

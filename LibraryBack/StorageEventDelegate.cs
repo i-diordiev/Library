@@ -9,12 +9,12 @@
     {
         public string Message { get; private set; }
         
-        public int BookID { get; private set; }
+        public int BookId { get; private set; }
 
         public StorageEventArgs(string message, int bookid)
         {
             Message = message;
-            BookID = bookid;
+            BookId = bookid;
         }
     }
 }

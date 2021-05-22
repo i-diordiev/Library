@@ -9,12 +9,12 @@
     {
         public string Message { get; private set; }
         
-        public int UserID { get; private set; }
+        public int UserId { get; private set; }
 
         public AccountEventArgs(string message, int userId)
         {
             Message = message;
-            UserID = userId;
+            UserId = userId;
         }
     }
 }

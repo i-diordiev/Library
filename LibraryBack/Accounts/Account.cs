@@ -1,0 +1,53 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace LibraryBack.Accounts
+{
+    /// <summary>
+    /// Registered account. Can only log in/out.
+    /// </summary>
+    public abstract class Account : IAccount
+    {
+        protected internal virtual event AccountEventDelegate Created;  // event, account created
+        
+        protected internal virtual event AccountEventDelegate Deleted;  // event, account deleted
+        
+        protected internal virtual event AccountEventDelegate LoggedIn;  // event, logged in 
+        
+        protected internal virtual event AccountEventDelegate LoggedOut;  // event, logged out
+        
+        public int Id { get; private set; }  // personal ID of account
+
+        public int Available { get; protected set; }  // number of available books, default = 10
+
+        public List<Book> MyBooks;  // array with books, taken by user
+
+        public Account(int id, int amount)
+        {
+            Id = id;
+            Available = amount;
+            MyBooks = new List<Book>();
+        }  // constructor 
+
+        // methods for calling events
+        public virtual void Create()
+        {
+            Created?.Invoke(this, new AccountEventArgs("You've successfully created account ID: " + Id, Id));
+        }
+        
+        public virtual void Delete()
+        {
+            Deleted?.Invoke(this, new AccountEventArgs("You've successfully deleted account ID: " + Id, Id));
+        }
+        
+        public virtual void LogIn()
+        {
+            LoggedIn?.Invoke(this, new AccountEventArgs("You've logged in account, ID: " + Id, Id));
+        }
+
+        public virtual void LogOut()
+        {
+            LoggedOut?.Invoke(this, new AccountEventArgs("You've logged off account, ID: " + Id, Id));
+        }
+    }
+}
