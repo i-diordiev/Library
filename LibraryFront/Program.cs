@@ -11,7 +11,7 @@ namespace LibraryFront
     {
         static void Main()
         {
-            Library library = new Library("My Bibla", StorageEventHandler);
+            Library library = new Library("KPI Library", StorageEventHandler);
             
             Console.Write("Do you want to import list of books from .csv file? (Y/N) ");  // asking to export books from previous run
             string answer = Console.ReadLine();
@@ -163,26 +163,6 @@ namespace LibraryFront
                 {
                     ExceptionHandler("You've entered wrong ID, try again!");
                 }
-                catch (BookAlreadyTakenException)
-                {
-                    ExceptionHandler("You already have this book!");
-                }
-                catch (BookLimitReachedException)
-                {
-                    ExceptionHandler("You've reached your book limit!");
-                }
-                catch (BookNotAvailableException)
-                {
-                    ExceptionHandler("This book is no more available!");
-                }
-                catch (BookNotTakenException)
-                {
-                    ExceptionHandler("You don't have this book!");
-                }
-                catch (BooksNotReturnedException)
-                {
-                    ExceptionHandler("You didn't return all books!");
-                }
                 catch (Exception ex)
                 {
                     ExceptionHandler(ex);
@@ -210,55 +190,91 @@ namespace LibraryFront
                                   "5. Return book\n" +
                                   "6. Delete account\n" +
                                   "7. Log out\n");
-                Console.WriteLine("Choose option: ");
-                int option = Convert.ToInt32(Console.ReadLine());
-                int id;
-                switch (option)
+                Console.Write("Choose option: ");
+                try
                 {
-                    case 1:
-                        if (account.MyBooks.Count == 0)
-                            Console.WriteLine("You have no books");
-                        else
-                        {
-                            Console.WriteLine("My books: ");
-                            for (int i = 0; i < account.MyBooks.Count; i++)
+                    int option = Convert.ToInt32(Console.ReadLine());
+                    int id;
+                    switch (option)
+                    {
+                        case 1:
+                            if (account.MyBooks.Count == 0)
+                                Console.WriteLine("You have no books");
+                            else
                             {
-                                Console.Write(i + 1);
-                                Console.WriteLine(".\tName: " + account.MyBooks[i].Name + 
-                                                  "\n\tAuthor: " + account.MyBooks[i].Author +
-                                                  "\n\tTheme: " + account.MyBooks[i].Theme + 
-                                                  "\n\tID: " + account.MyBooks[i].Id);
+                                Console.WriteLine("My books: ");
+                                for (int i = 0; i < account.MyBooks.Count; i++)
+                                {
+                                    Console.Write(i + 1);
+                                    Console.WriteLine(".\tName: " + account.MyBooks[i].Name +
+                                                      "\n\tAuthor: " + account.MyBooks[i].Author +
+                                                      "\n\tTheme: " + account.MyBooks[i].Theme +
+                                                      "\n\tID: " + account.MyBooks[i].Id);
+                                }
                             }
-                        }
-                        break;
-                    case 2:
-                        ShowAllBooks(lib);
-                        break;
-                    case 3:
-                        FindBookMenu(lib);
-                        break;
-                    case 4:
-                        Console.Write("Enter book ID: ");
-                        id = Convert.ToInt32(Console.ReadLine());
-                        account.TakeBook(lib, id);
-                        break;
-                    case 5:
-                        Console.Write("Enter book ID: ");
-                        id = Convert.ToInt32(Console.ReadLine());
-                        account.ReturnBook(lib, id);
-                        break;
-                    case 6: 
-                        Console.Write("Type \"DELETE MY ACCOUNT\" to proceed: ");
-                        string confirmation = Console.ReadLine();
-                        if (confirmation == "DELETE MY ACCOUNT")
-                            lib.RemoveAccount(account.Id);
-                        Console.Clear();
-                        alive = false;
-                        break;
-                    case 7:
-                        Console.Clear();
-                        alive = false;
-                        break;
+
+                            break;
+                        case 2:
+                            ShowAllBooks(lib);
+                            break;
+                        case 3:
+                            FindBookMenu(lib);
+                            break;
+                        case 4:
+                            Console.Write("Enter book ID: ");
+                            id = Convert.ToInt32(Console.ReadLine());
+                            account.TakeBook(lib, id);
+                            break;
+                        case 5:
+                            Console.Write("Enter book ID: ");
+                            id = Convert.ToInt32(Console.ReadLine());
+                            account.ReturnBook(lib, id);
+                            break;
+                        case 6:
+                            Console.Write("Type \"DELETE MY ACCOUNT\" to proceed: ");
+                            string confirmation = Console.ReadLine();
+                            if (confirmation == "DELETE MY ACCOUNT")
+                                lib.RemoveAccount(account.Id);
+                            Console.Clear();
+                            alive = false;
+                            break;
+                        case 7:
+                            Console.Clear();
+                            alive = false;
+                            break;
+                    }
+                }
+                catch (BookAlreadyTakenException)
+                {
+                    ExceptionHandler("You already have this book!");
+                }
+                catch (BookLimitReachedException)
+                {
+                    ExceptionHandler("You've reached your book limit!");
+                }
+                catch (BookNotAvailableException)
+                {
+                    ExceptionHandler("This book is no more available!");
+                }
+                catch (BookNotTakenException)
+                {
+                    ExceptionHandler("You don't have this book!");
+                }
+                catch (BooksNotReturnedException)
+                {
+                    ExceptionHandler("You didn't return all books!");
+                }
+                catch (WrongIdException)
+                {
+                    ExceptionHandler("You've entered wrong ID, try again!");
+                }
+                catch (FormatException)
+                {
+                    ExceptionHandler("Wrong input format! Try again.");
+                }
+                catch (Exception ex)
+                {
+                    ExceptionHandler(ex);
                 }
             }
         }
@@ -280,80 +296,66 @@ namespace LibraryFront
                                   "2. Remove book from library\n" +
                                   "3. View all books\n" +
                                   "4. Find book\n" +
-                                  "5. View my books\n" +
-                                  "6. Take book\n" +
-                                  "7. Return book\n" +
-                                  "8. Delete account\n" +
-                                  "9. Log out\n");
-                                  Console.WriteLine("Choose option: ");
-                int option = Convert.ToInt32(Console.ReadLine());
-                int id;
-                switch (option)
+                                  "5. Delete account\n" +
+                                  "6. Log out\n");
+                Console.Write("Choose option: ");
+                try
                 {
-                    case 1:
-                        Console.Write("Enter name of book: ");
-                        string name = Console.ReadLine();
-                        
-                        Console.Write("Enter name of author: ");
-                        string author = Console.ReadLine();
-                        
-                        Console.Write("Enter themes: ");
-                        string theme = Console.ReadLine();
-                        
-                        Console.Write("Enter quantity: ");
-                        int quantity = Convert.ToInt32(Console.ReadLine());
-                        
-                        account.AddBook(lib, name, author, theme, quantity);
-                        break;
-                    case 2:
-                        Console.Write("Enter book ID: ");
-                        id = Convert.ToInt32(Console.ReadLine());
-                        account.RemoveBook(lib, id);
-                        break;
-                    case 3:
-                        ShowAllBooks(lib);
-                        break;
-                    case 4:
-                        FindBookMenu(lib);
-                        break;
-                    case 5:
-                        if (account.MyBooks.Count == 0)
-                            Console.WriteLine("You have no books");
-                        else
-                        {
-                            Console.WriteLine("My books: ");
-                            for (int i = 0; i < account.MyBooks.Count; i++)
-                            {
-                                Console.Write(i + 1);
-                                Console.WriteLine(".\tName: " + account.MyBooks[i].Name + 
-                                                  "\n\tAuthor: " + account.MyBooks[i].Author +
-                                                  "\n\tTheme: " + account.MyBooks[i].Theme + 
-                                                  "\n\tID: " + account.MyBooks[i].Id);
-                            }
-                        }
-                        break;
-                    case 6:
-                        Console.Write("Enter book ID: ");
-                        id = Convert.ToInt32(Console.ReadLine());
-                        account.TakeBook(lib, id);
-                        break;
-                    case 7:
-                        Console.Write("Enter book ID: ");
-                        id = Convert.ToInt32(Console.ReadLine());
-                        account.ReturnBook(lib, id);
-                        break;
-                    case 8:
-                        Console.Write("Type \"DELETE MY ACCOUNT\" to proceed: ");
-                        string confirmation = Console.ReadLine();
-                        if (confirmation == "DELETE MY ACCOUNT")
-                            lib.RemoveAccount(account.Id);
-                        alive = false;
-                        Console.Clear();
-                        break;
-                    case 9:
-                        Console.Clear();
-                        alive = false;
-                        break;
+                    int option = Convert.ToInt32(Console.ReadLine());
+                    int id;
+                    switch (option)
+                    {
+                        case 1:
+                            Console.Write("Enter name of book: ");
+                            string name = Console.ReadLine();
+
+                            Console.Write("Enter name of author: ");
+                            string author = Console.ReadLine();
+
+                            Console.Write("Enter themes: ");
+                            string theme = Console.ReadLine();
+
+                            Console.Write("Enter quantity: ");
+                            int quantity = Convert.ToInt32(Console.ReadLine());
+
+                            account.AddBook(lib, name, author, theme, quantity);
+                            break;
+                        case 2:
+                            Console.Write("Enter book ID: ");
+                            id = Convert.ToInt32(Console.ReadLine());
+                            account.RemoveBook(lib, id);
+                            break;
+                        case 3:
+                            ShowAllBooks(lib);
+                            break;
+                        case 4:
+                            FindBookMenu(lib);
+                            break;
+                        case 5:
+                            Console.Write("Type \"DELETE MY ACCOUNT\" to proceed: ");
+                            string confirmation = Console.ReadLine();
+                            if (confirmation == "DELETE MY ACCOUNT")
+                                lib.RemoveAccount(account.Id);
+                            alive = false;
+                            Console.Clear();
+                            break;
+                        case 6:
+                            Console.Clear();
+                            alive = false;
+                            break;
+                    }
+                }
+                catch (WrongIdException)
+                {
+                    ExceptionHandler("You've entered wrong ID, try again!");
+                }
+                catch (FormatException)
+                {
+                    ExceptionHandler("Wrong input format! Try again.");
+                }
+                catch (Exception ex)
+                {
+                    ExceptionHandler(ex);
                 }
             }
         }

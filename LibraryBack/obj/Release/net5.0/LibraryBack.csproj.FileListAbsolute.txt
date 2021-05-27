@@ -1,0 +1,12 @@
+C:\Users\Ivan\RiderProjects\Library\LibraryBack\bin\Release\net5.0\LibraryBack.deps.json
+C:\Users\Ivan\RiderProjects\Library\LibraryBack\bin\Release\net5.0\LibraryBack.dll
+C:\Users\Ivan\RiderProjects\Library\LibraryBack\bin\Release\net5.0\ref\LibraryBack.dll
+C:\Users\Ivan\RiderProjects\Library\LibraryBack\bin\Release\net5.0\LibraryBack.pdb
+C:\Users\Ivan\RiderProjects\Library\LibraryBack\obj\Release\net5.0\LibraryBack.csprojAssemblyReference.cache
+C:\Users\Ivan\RiderProjects\Library\LibraryBack\obj\Release\net5.0\LibraryBack.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Ivan\RiderProjects\Library\LibraryBack\obj\Release\net5.0\LibraryBack.AssemblyInfoInputs.cache
+C:\Users\Ivan\RiderProjects\Library\LibraryBack\obj\Release\net5.0\LibraryBack.AssemblyInfo.cs
+C:\Users\Ivan\RiderProjects\Library\LibraryBack\obj\Release\net5.0\LibraryBack.csproj.CoreCompileInputs.cache
+C:\Users\Ivan\RiderProjects\Library\LibraryBack\obj\Release\net5.0\LibraryBack.dll
+C:\Users\Ivan\RiderProjects\Library\LibraryBack\obj\Release\net5.0\ref\LibraryBack.dll
+C:\Users\Ivan\RiderProjects\Library\LibraryBack\obj\Release\net5.0\LibraryBack.pdb

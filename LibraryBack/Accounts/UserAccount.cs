@@ -1,4 +1,5 @@
-﻿using LibraryBack.Exceptions;
+﻿using System.Collections.Generic;
+using LibraryBack.Exceptions;
 
 namespace LibraryBack.Accounts
 {
@@ -18,8 +19,16 @@ namespace LibraryBack.Accounts
         protected internal event AccountEventDelegate TakenBook;  // event, book taken from library
         
         protected internal event AccountEventDelegate ReturnedBook;  // event, book returned to library
+        
+        public int Available { get; protected set; }  // number of available books, default = 10
 
-        public UserAccount(int userId, int amount) : base(userId, amount) { }  // constructor, calling base constructor
+        public List<Book> MyBooks;  // array with books, taken by user
+
+        public UserAccount(int userId, int amount) : base(userId)
+        {
+            Available = amount;
+            MyBooks = new List<Book>();
+        }  // constructor, calling base constructor
         
         
         // methods for calling events

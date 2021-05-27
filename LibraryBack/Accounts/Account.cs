@@ -17,16 +17,11 @@ namespace LibraryBack.Accounts
         protected internal virtual event AccountEventDelegate LoggedOut;  // event, logged out
         
         public int Id { get; private set; }  // personal ID of account
+        
 
-        public int Available { get; protected set; }  // number of available books, default = 10
-
-        public List<Book> MyBooks;  // array with books, taken by user
-
-        public Account(int id, int amount)
+        public Account(int id)
         {
             Id = id;
-            Available = amount;
-            MyBooks = new List<Book>();
         }  // constructor 
 
         // methods for calling events

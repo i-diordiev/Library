@@ -65,11 +65,9 @@ namespace LibraryBack
             switch (type)
             {
                 case AccountType.Librarian:
-                    LibrarianAccount newAdmin = new LibrarianAccount(++_totalAccounts, 10000);
+                    LibrarianAccount newAdmin = new LibrarianAccount(++_totalAccounts);
                     newAdmin.Created += accountEventHandler;
                     newAdmin.Deleted += accountEventHandler;
-                    newAdmin.TakenBook += accountEventHandler;
-                    newAdmin.ReturnedBook += accountEventHandler;
                     newAdmin.LoggedIn += accountEventHandler;
                     newAdmin.LoggedOut += accountEventHandler;
 
@@ -102,23 +100,24 @@ namespace LibraryBack
             var acc = FindAccount(userid, ref type, ref pos);
             if (acc != null)
             {
-                if (acc.MyBooks.Count != 0)
-                    throw new BooksNotReturnedException();
-                acc.Delete();
-                
                 if (type == AccountType.User)
                 {
+                    UserAccount user = acc as UserAccount;
+                    if (user.MyBooks.Count != 0)
+                        throw new BooksNotReturnedException();
+                    user.Delete();
                     Users.RemoveAt(pos);
                 }
                 else if (type == AccountType.Librarian)
                 {
+                    acc.Delete();
                     Admins.RemoveAt(pos);
                 }
                 else
                     throw new Exception("Something has gone wrong!");
             }
             else
-                throw new Exception("Account not found!");
+                throw new WrongIdException();
         }
         
         /// <summary>
