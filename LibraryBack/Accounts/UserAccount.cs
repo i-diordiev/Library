@@ -61,9 +61,9 @@ namespace LibraryBack.Accounts
             {
                 // search for the same book in user's book
                 bool isMyBook = false;
-                for (int i = 0; i < MyBooks.Count; i++)
+                foreach (Book book in MyBooks)
                 {
-                    if (MyBooks[i].Id == bookId)
+                    if (book.Id == bookId)
                         isMyBook = true;
                 }
 

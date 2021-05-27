@@ -48,8 +48,7 @@ namespace LibraryFront
             }
 
             ShowStartMenu(library);
-            Console.Clear();
-            
+
             Console.Write("Do you want to export list of books to .csv file? (Y/N) ");  // asking to save books from library to .csv file
             answer = Console.ReadLine();
             
@@ -90,10 +89,11 @@ namespace LibraryFront
         /// </summary>
         static void ShowStartMenu(Library lib)
         {
+            Console.WriteLine("Welcome to " + lib.Name);
+            
             bool alive = true;
             while (alive)
             {
-                Console.WriteLine("Welcome to " + lib.Name);
                 Console.WriteLine("List of options:\n" +
                                   "1. Register new account\n" +
                                   "2. Login\n" +
@@ -118,7 +118,6 @@ namespace LibraryFront
                                 lib.AddAccount(AccountType.Librarian, AccountEventHandler);
                             else
                                 Console.WriteLine("Please, choose 1 or 2");
-
                             break;
                         case 2:
                             Console.WriteLine("Choose type of account:\n" +
@@ -130,18 +129,15 @@ namespace LibraryFront
                             if (t == 1)
                             {
                                 UserAccount acc = lib.Login(AccountType.User, id) as UserAccount;
-                                Console.Clear();
                                 ShowUserMenu(lib, acc);
                             }
                             else if (t == 2)
                             {
                                 LibrarianAccount acc = lib.Login(AccountType.Librarian, id) as LibrarianAccount;
-                                Console.Clear();
                                 ShowAdminMenu(lib, acc);
                             }
                             else
                                 Console.WriteLine("Please, choose 1 or 2");
-
                             break;
                         case 3:
                             ShowAllBooks(lib);
@@ -150,7 +146,6 @@ namespace LibraryFront
                             FindBookMenu(lib);
                             break;
                         case 5:
-                            Console.Clear();
                             alive = false;
                             break;
                     }
@@ -235,11 +230,10 @@ namespace LibraryFront
                             string confirmation = Console.ReadLine();
                             if (confirmation == "DELETE MY ACCOUNT")
                                 lib.RemoveAccount(account.Id);
-                            Console.Clear();
                             alive = false;
                             break;
                         case 7:
-                            Console.Clear();
+                            account.LogOut();
                             alive = false;
                             break;
                     }
@@ -337,10 +331,9 @@ namespace LibraryFront
                             if (confirmation == "DELETE MY ACCOUNT")
                                 lib.RemoveAccount(account.Id);
                             alive = false;
-                            Console.Clear();
                             break;
                         case 6:
-                            Console.Clear();
+                            account.LogOut();
                             alive = false;
                             break;
                     }
@@ -433,7 +426,7 @@ namespace LibraryFront
         {
             ConsoleColor color = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine(args.Message);
+            Console.WriteLine("\n" + args.Message + "\n");
             Console.ForegroundColor = color;
         }
         
@@ -444,7 +437,7 @@ namespace LibraryFront
         {
             ConsoleColor color = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(args.Message);
+            Console.WriteLine("\n" + args.Message + "\n");
             Console.ForegroundColor = color;
         }
 
@@ -455,7 +448,7 @@ namespace LibraryFront
         {
             ConsoleColor color = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(ex.Message);
+            Console.WriteLine("\n" + ex.Message + "\n");
             Console.ForegroundColor = color;
         }
         
@@ -466,7 +459,7 @@ namespace LibraryFront
         {
             ConsoleColor color = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(message);
+            Console.WriteLine("\n" + message + "\n");
             Console.ForegroundColor = color;
         }
     }

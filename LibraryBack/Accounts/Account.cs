@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace LibraryBack.Accounts
+﻿namespace LibraryBack.Accounts
 {
     /// <summary>
     /// Registered account. Can only log in/out.
@@ -17,7 +14,6 @@ namespace LibraryBack.Accounts
         protected internal virtual event AccountEventDelegate LoggedOut;  // event, logged out
         
         public int Id { get; private set; }  // personal ID of account
-        
 
         public Account(int id)
         {

@@ -1,6 +1,4 @@
-﻿using LibraryBack.Exceptions;
-
-namespace LibraryBack.Accounts
+﻿namespace LibraryBack.Accounts
 {
     /// <summary>
     /// Admin account. Can add and remove books in library.

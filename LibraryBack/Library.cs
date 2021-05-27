@@ -100,21 +100,22 @@ namespace LibraryBack
             var acc = FindAccount(userid, ref type, ref pos);
             if (acc != null)
             {
-                if (type == AccountType.User)
+                switch (type)
                 {
-                    UserAccount user = acc as UserAccount;
-                    if (user.MyBooks.Count != 0)
-                        throw new BooksNotReturnedException();
-                    user.Delete();
-                    Users.RemoveAt(pos);
+                    case AccountType.Librarian:
+                        acc.Delete();
+                        Admins.RemoveAt(pos);
+                        break;
+                    case AccountType.User:
+                        UserAccount user = acc as UserAccount;
+                        if (user.MyBooks.Count != 0)
+                            throw new BooksNotReturnedException();
+                        user.Delete();
+                        Users.RemoveAt(pos);
+                        break;
+                    default:
+                        throw new Exception("Something has gone wrong!");
                 }
-                else if (type == AccountType.Librarian)
-                {
-                    acc.Delete();
-                    Admins.RemoveAt(pos);
-                }
-                else
-                    throw new Exception("Something has gone wrong!");
             }
             else
                 throw new WrongIdException();
@@ -150,23 +151,30 @@ namespace LibraryBack
         /// </summary>
         private Account FindAccount(int id, ref AccountType type, ref int pos)
         {
-            for (int i = 0; i < Users.Count; i++)
+            switch (type)
             {
-                if (Users[i].Id == id)
-                {
-                    type = AccountType.User;
-                    pos = i;
-                    return Users[i];
-                }
-            }
-            for (int i = 0; i < Admins.Count; i++)
-            {
-                if (Admins[i].Id == id)
-                {
-                    type = AccountType.Librarian;
-                    pos = i;
-                    return Admins[i];
-                }
+                case AccountType.Librarian:
+                    for (int i = 0; i < Admins.Count; i++)
+                    {
+                        if (Admins[i].Id == id)
+                        {
+                            type = AccountType.Librarian;
+                            pos = i;
+                            return Admins[i];
+                        }
+                    }
+                    break;
+                case AccountType.User:
+                    for (int i = 0; i < Users.Count; i++)
+                    {
+                        if (Users[i].Id == id)
+                        {
+                            type = AccountType.User;
+                            pos = i;
+                            return Users[i];
+                        }
+                    }
+                    break;
             }
             return null;
         }
@@ -201,10 +209,10 @@ namespace LibraryBack
         public void RemoveBook(int bookid)
         {
             int pos = 0;
-            Book b = FindBookById(bookid, ref pos);
-            if (b != null)
+            Book book = FindBookById(bookid, ref pos);
+            if (book != null)
             {
-                if (b.Available == b.Quantity)
+                if (book.Available == book.Quantity)
                 {
                     Books.RemoveAt(pos);
                     RemovedBook?.Invoke(this, new StorageEventArgs("You've successfully removed book from library \""
@@ -227,13 +235,13 @@ namespace LibraryBack
                 switch (type)
                 {
                     case SearchType.ByName:
-                        isSuitable = currentBook.Name.Contains(param);
+                        isSuitable = currentBook.Name.ToLower().Contains(param.ToLower());
                         break;
                     case SearchType.ByAuthor:
-                        isSuitable = currentBook.Author.Contains(param);
+                        isSuitable = currentBook.Author.ToLower().Contains(param.ToLower());
                         break;
                     case SearchType.ByTheme:
-                        isSuitable = currentBook.Theme.Contains(param);
+                        isSuitable = currentBook.Theme.ToLower().Contains(param.ToLower());
                         break;
                 }
                 if (isSuitable)
