@@ -1,11 +1,7 @@
-Course Work
+Course Work\n
+"Library"\n
+Programming C#\n
+Semester #2\n
 
-"Library"
-
-Programming C#
-
-Semester #2
-
-IS-03 Ivan Diordiev
-
+IS-03 Ivan Diordiev\n
 05.2021
