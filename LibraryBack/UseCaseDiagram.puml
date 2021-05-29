@@ -1,0 +1,17 @@
+﻿@startuml
+'https://plantuml.com/use-case-diagram
+
+left to right direction
+
+User --> (View all books in library)
+User --> (Search for books)
+User --> (Take book)
+User --> (Return book)
+User --> (View his books)
+
+Librarian --> (Add books to library)
+Librarian --> (Delete books from library)
+Librarian --> (View all books in library)
+Librarian --> (Search for books)
+
+@enduml

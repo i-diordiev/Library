@@ -31,6 +31,7 @@ namespace LibraryBack
         protected internal event StorageEventDelegate AddedBook;
         
         protected internal event StorageEventDelegate RemovedBook;
+        
         public string Name { get; }
 
         private List<UserAccount> Users;
