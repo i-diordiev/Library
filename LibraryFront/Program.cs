@@ -12,76 +12,7 @@ namespace LibraryFront
         static void Main()
         {
             Library library = new Library("KPI Library", StorageEventHandler);
-            
-            Console.Write("Do you want to import list of books from .csv file? (Y/N) ");  // asking to export books from previous run
-            string answer = Console.ReadLine();
-            
-            if (answer == "y" || answer == "Y")  // if yes, import books from .csv file
-            {
-                while (true)
-                {
-                    try
-                    {
-                        Console.Write("Type name of .csv file: ");
-                        string fileName = Console.ReadLine();
-                        if (fileName == null)
-                            throw new Exception("Please, type name of file and try again");
-                        
-                        using (var reader = new StreamReader(fileName))
-                        {
-                            while (!reader.EndOfStream)
-                            {
-                                string line = reader.ReadLine();
-                                var values = line.Split(",");
-                                library.AddBook(values[0], values[1], values[2], Convert.ToInt32(values[3]));
-                            }
-                        }
-                        
-                        Console.WriteLine("Import successful!");
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        ExceptionHandler(ex);
-                    }
-                }
-            }
-
             ShowStartMenu(library);
-
-            Console.Write("Do you want to export list of books to .csv file? (Y/N) ");  // asking to save books from library to .csv file
-            answer = Console.ReadLine();
-            
-            if (answer == "y" || answer == "Y")  // if yes, writing list ot .csv
-            {
-                while (true)
-                {
-                    try
-                    {
-                        Console.Write("Type name of .csv file: ");
-                        string fileName = Console.ReadLine();
-                        if (fileName == null)
-                            throw new Exception("Please, type name of file and try again");
-                        
-                        using (var writer = new StreamWriter(fileName))
-                        {
-                            foreach (Book book in library.Books)
-                            {
-                                string text = book.Name + "," + book.Author + "," + book.Theme + "," +
-                                              Convert.ToString(book.Quantity);
-                                writer.WriteLine(text);
-                            }
-                        }
-                        
-                        Console.WriteLine("Export successful!");
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        ExceptionHandler(ex);
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -104,36 +35,28 @@ namespace LibraryFront
                 try
                 {
                     int option = Convert.ToInt32(Console.ReadLine());
-                    int t;
                     switch (option)
                     {
                         case 1:
-                            Console.WriteLine("Choose type of account:\n" +
-                                              "1. User\n" +
-                                              "2. Admin");
-                            t = Convert.ToInt32(Console.ReadLine());
-                            if (t == 1)
-                                lib.AddAccount(AccountType.User, AccountEventHandler);
-                            else if (t == 2)
-                                lib.AddAccount(AccountType.Librarian, AccountEventHandler);
-                            else
-                                Console.WriteLine("Please, choose 1 or 2");
+                            lib.AddAccount(AccountEventHandler);
                             break;
                         case 2:
                             Console.WriteLine("Choose type of account:\n" +
                                               "1. User\n" +
                                               "2. Admin");
-                            t = Convert.ToInt32(Console.ReadLine());
-                            Console.Write("Ented ID of your account: ");
-                            int id = Convert.ToInt32(Console.ReadLine());
+                            int t = Convert.ToInt32(Console.ReadLine());
                             if (t == 1)
                             {
-                                UserAccount acc = lib.Login(AccountType.User, id) as UserAccount;
+                                Console.Write("Enter ID of your account: ");
+                                int id = Convert.ToInt32(Console.ReadLine());
+                                UserAccount acc = lib.Login(id);
                                 ShowUserMenu(lib, acc);
                             }
                             else if (t == 2)
                             {
-                                LibrarianAccount acc = lib.Login(AccountType.Librarian, id) as LibrarianAccount;
+                                Console.Write("Enter password: ");
+                                string pass = Console.ReadLine();
+                                LibrarianAccount acc = lib.LoginAsAdmin(pass);
                                 ShowAdminMenu(lib, acc);
                             }
                             else
@@ -157,6 +80,10 @@ namespace LibraryFront
                 catch (WrongIdException)
                 {
                     ExceptionHandler("You've entered wrong ID, try again!");
+                }
+                catch (WrongPasswordException)
+                {
+                    ExceptionHandler("You've entered wrong password, try again!");
                 }
                 catch (Exception ex)
                 {
@@ -290,7 +217,7 @@ namespace LibraryFront
                                   "2. Remove book from library\n" +
                                   "3. View all books\n" +
                                   "4. Find book\n" +
-                                  "5. Delete account\n" +
+                                  "5. Import books from .csv\n" +
                                   "6. Log out\n");
                 Console.Write("Choose option: ");
                 try
@@ -326,11 +253,21 @@ namespace LibraryFront
                             FindBookMenu(lib);
                             break;
                         case 5:
-                            Console.Write("Type \"DELETE MY ACCOUNT\" to proceed: ");
-                            string confirmation = Console.ReadLine();
-                            if (confirmation == "DELETE MY ACCOUNT")
-                                lib.RemoveAccount(account.Id);
-                            alive = false;
+                            Console.Write("Type name of .csv file: ");
+                            string fileName = Console.ReadLine();
+                            if (fileName == null)
+                                throw new Exception("Please, type name of file and try again");
+                        
+                            using (var reader = new StreamReader(fileName))
+                            {
+                                while (!reader.EndOfStream)
+                                {
+                                    string line = reader.ReadLine();
+                                    var values = line.Split(",");
+                                    lib.AddBook(values[0], values[1], values[2], Convert.ToInt32(values[3]));
+                                }
+                            }
+                            Console.WriteLine("Import successful!");
                             break;
                         case 6:
                             account.LogOut();

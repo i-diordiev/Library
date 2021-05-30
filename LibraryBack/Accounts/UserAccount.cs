@@ -8,9 +8,9 @@ namespace LibraryBack.Accounts
     /// </summary>
     public class UserAccount : Account
     {
-        protected internal override event AccountEventDelegate Created;  // account creation event
+        protected internal event AccountEventDelegate Created;  // account creation event
         
-        protected internal override event AccountEventDelegate Deleted;  // account deletion event
+        protected internal event AccountEventDelegate Deleted;  // account deletion event
         
         protected internal override event AccountEventDelegate LoggedIn;  // log in event
         
@@ -32,12 +32,12 @@ namespace LibraryBack.Accounts
         
         
         // methods for calling events
-        public override void Create()
+        public void Create()
         {
             Created?.Invoke(this, new AccountEventArgs("You've successfully created user account, ID: " + Id, Id));
         }
         
-        public override void Delete()
+        public void Delete()
         {
             Deleted?.Invoke(this, new AccountEventArgs("You've successfully deleted user account, ID: " + Id, Id));
         }

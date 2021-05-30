@@ -1,34 +1,30 @@
-﻿namespace LibraryBack.Accounts
+﻿using LibraryBack.Exceptions;
+
+namespace LibraryBack.Accounts
 {
     /// <summary>
     /// Admin account. Can add and remove books in library.
     /// </summary>
-    public class LibrarianAccount : Account
+    public class LibrarianAccount: Account
     {
-        protected internal override event AccountEventDelegate Created;  // account creation event
-        
-        protected internal override event AccountEventDelegate Deleted;  // account deletion event
-        
+        private string _password;
+
         protected internal override event AccountEventDelegate LoggedIn;  // log in event
         
         protected internal override event AccountEventDelegate LoggedOut;  // log out event
-        
-        public LibrarianAccount(int userId): base(userId) {}  // constructor, calling base constructor
+
+        public LibrarianAccount(int userId, string password) : base(userId)
+        {
+            _password = password;
+        }  // constructor, calling base constructor
         
         // methods for calling events
-        public override void Create()
+        public void LogIn(string password)
         {
-            Created?.Invoke(this, new AccountEventArgs("You've successfully created admin account, ID: " + Id, Id));
-        }
-        
-        public override void Delete()
-        {
-            Deleted?.Invoke(this, new AccountEventArgs("You've successfully deleted admin account, ID: " + Id, Id));
-        }
-        
-        public override void LogIn()
-        {
-            LoggedIn?.Invoke(this, new AccountEventArgs("You've logged in admin account, ID: " + Id, Id));
+            if (password == _password)
+                LoggedIn?.Invoke(this, new AccountEventArgs("You've logged in admin account, ID: " + Id, Id));
+            else
+                throw new WrongPasswordException();
         }
 
         public override void LogOut()

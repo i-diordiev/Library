@@ -6,16 +6,6 @@ using LibraryBack.Exceptions;
 namespace LibraryBack
 {
     /// <summary>
-    /// Types of accounts
-    /// </summary>
-    public enum AccountType
-    {
-        User,
-        Librarian,
-        None
-    }
-
-    /// <summary>
     /// Searching books types
     /// </summary>
     public enum SearchType
@@ -36,7 +26,7 @@ namespace LibraryBack
 
         private List<UserAccount> Users;
 
-        private List<LibrarianAccount> Admins;
+        private LibrarianAccount Admin;
         
         private static int _totalAccounts = 0;  // global count of registered accounts
 
@@ -53,42 +43,26 @@ namespace LibraryBack
             AddedBook += storageEventHandler;
             RemovedBook += storageEventHandler;
             Users = new List<UserAccount>();
-            Admins = new List<LibrarianAccount>();
+            Admin = new LibrarianAccount(0, "s3cr3t");
             Books = new List<Book>();
         }
         
         /// <summary>
         /// Adds account. Requires type of account (admin/user) and some handler of account events.
         /// </summary>
-        public void AddAccount(AccountType type,
-            AccountEventDelegate accountEventHandler)
+        public void AddAccount(AccountEventDelegate accountEventHandler)
         {
-            switch (type)
-            {
-                case AccountType.Librarian:
-                    LibrarianAccount newAdmin = new LibrarianAccount(++_totalAccounts);
-                    newAdmin.Created += accountEventHandler;
-                    newAdmin.Deleted += accountEventHandler;
-                    newAdmin.LoggedIn += accountEventHandler;
-                    newAdmin.LoggedOut += accountEventHandler;
-
-                    Admins.Add(newAdmin);
-                    newAdmin.Create();
-                    break;
-                case AccountType.User:
-                    UserAccount newUser = new UserAccount(++_totalAccounts, 10);
+            UserAccount newUser = new UserAccount(++_totalAccounts, 10);
                     
-                    newUser.Created += accountEventHandler;
-                    newUser.Deleted += accountEventHandler;
-                    newUser.TakenBook += accountEventHandler;
-                    newUser.ReturnedBook += accountEventHandler;
-                    newUser.LoggedIn += accountEventHandler;
-                    newUser.LoggedOut += accountEventHandler;
+            newUser.Created += accountEventHandler;
+            newUser.Deleted += accountEventHandler;
+            newUser.TakenBook += accountEventHandler;
+            newUser.ReturnedBook += accountEventHandler;
+            newUser.LoggedIn += accountEventHandler;
+            newUser.LoggedOut += accountEventHandler;
 
-                    Users.Add(newUser);
-                    newUser.Create();
-                    break;
-            }
+            Users.Add(newUser);
+            newUser.Create();
         }
 
         /// <summary>
@@ -97,26 +71,13 @@ namespace LibraryBack
         public void RemoveAccount(int userid)
         {
             int pos = 0;
-            AccountType type = AccountType.None;
-            var acc = FindAccount(userid, ref type, ref pos);
+            UserAccount acc = FindAccount(userid, ref pos);
             if (acc != null)
             {
-                switch (type)
-                {
-                    case AccountType.Librarian:
-                        acc.Delete();
-                        Admins.RemoveAt(pos);
-                        break;
-                    case AccountType.User:
-                        UserAccount user = acc as UserAccount;
-                        if (user.MyBooks.Count != 0)
-                            throw new BooksNotReturnedException();
-                        user.Delete();
-                        Users.RemoveAt(pos);
-                        break;
-                    default:
-                        throw new Exception("Something has gone wrong!");
-                }
+                if (acc.MyBooks.Count != 0)
+                    throw new BooksNotReturnedException();
+                acc.Delete();
+                Users.RemoveAt(pos);
             }
             else
                 throw new WrongIdException();
@@ -125,24 +86,12 @@ namespace LibraryBack
         /// <summary>
         /// Finds account. Requires ID.
         /// </summary>
-        private Account FindAccount(int id, AccountType type)
+        private UserAccount FindAccount(int id)
         {
-            switch (type)
+            foreach (UserAccount user in Users)
             {
-                case AccountType.User:
-                    foreach (UserAccount user in Users)
-                    {
-                        if (user.Id == id)
-                            return user;
-                    }
-                    break;
-                case AccountType.Librarian:
-                    foreach (LibrarianAccount admin in Admins)
-                    {
-                        if (admin.Id == id)
-                            return admin;
-                    }
-                    break;
+                if (user.Id == id)
+                    return user;
             }
             return null;
         }
@@ -150,47 +99,39 @@ namespace LibraryBack
         /// <summary>
         /// Overloaded version of FindAccount. Requires ID and some int number to save position of account in list of users.
         /// </summary>
-        private Account FindAccount(int id, ref AccountType type, ref int pos)
+        private UserAccount FindAccount(int id, ref int pos)
         {
-            switch (type)
+            for (int i = 0; i < Users.Count; i++)
             {
-                case AccountType.Librarian:
-                    for (int i = 0; i < Admins.Count; i++)
-                    {
-                        if (Admins[i].Id == id)
-                        {
-                            type = AccountType.Librarian;
-                            pos = i;
-                            return Admins[i];
-                        }
-                    }
-                    break;
-                case AccountType.User:
-                    for (int i = 0; i < Users.Count; i++)
-                    {
-                        if (Users[i].Id == id)
-                        {
-                            type = AccountType.User;
-                            pos = i;
-                            return Users[i];
-                        }
-                    }
-                    break;
+                if (Users[i].Id == id)
+                {
+                    pos = i;
+                    return Users[i];
+                }
             }
             return null;
         }
 
         /// <summary>
-        /// Log in. Requires account type (user/admin) and ID.
+        /// Log in. Requires ID.
         /// </summary>
-        public Account Login(AccountType type, int id)
+        public UserAccount Login(int id)
         {
-            var acc = FindAccount(id, type);
+            UserAccount acc = FindAccount(id);
             if (acc != null)
                 acc.LogIn();
             else
                 throw new WrongIdException();
             return acc;
+        }
+
+        /// <summary>
+        /// Log in as admin. Requires password.
+        /// </summary>
+        public LibrarianAccount LoginAsAdmin(string password)
+        {
+            Admin.LogIn(password);
+            return Admin;
         }
 
         /// <summary>
