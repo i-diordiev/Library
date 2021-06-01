@@ -72,7 +72,7 @@ namespace LibraryBack.Accounts
                 {
                     Book newBook = lib.GiveBook(bookId);
                     TakenBook?.Invoke(this,
-                        new AccountEventArgs("You've taken book #" + bookId + ", your account ID: " + Id, Id));
+                        new AccountEventArgs("You've taken book \"" + newBook.Name + "\", your account ID: " + Id, Id));
                     MyBooks.Add(newBook);
                     Available--;
                 }
@@ -102,7 +102,7 @@ namespace LibraryBack.Accounts
             {
                 lib.TakeBook(bookId);
                 ReturnedBook?.Invoke(this,
-                    new AccountEventArgs("You've returned book #" + bookId + ", your account ID: " + Id, Id));
+                    new AccountEventArgs("You've returned book \"" + book.Name + "\", your account ID: " + Id, Id));
                 MyBooks.Remove(book);
                 Available++;
             }

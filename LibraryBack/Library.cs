@@ -43,7 +43,7 @@ namespace LibraryBack
             AddedBook += storageEventHandler;
             RemovedBook += storageEventHandler;
             Users = new List<UserAccount>();
-            Admin = new LibrarianAccount(0, "s3cr3t");
+            Admin = new LibrarianAccount(0, "admin");
             Books = new List<Book>();
         }
         
@@ -142,7 +142,7 @@ namespace LibraryBack
             int bookId = ++_totalBooks;
             Book newBook = new Book(bookId, name, author, theme, quantity);
             Books.Add(newBook);
-            AddedBook?.Invoke(this, new StorageEventArgs("You've successfully added new book, ID: " + bookId, bookId));
+            AddedBook?.Invoke(this, new StorageEventArgs("You've successfully added new book \"" + newBook.Name + "\", ID: " + bookId, bookId));
         }
 
         /// <summary>
@@ -157,12 +157,15 @@ namespace LibraryBack
                 if (book.Available == book.Quantity)
                 {
                     Books.RemoveAt(pos);
-                    RemovedBook?.Invoke(this, new StorageEventArgs("You've successfully removed book from library \""
-                                                                   + Name + "\", book ID: " + bookid, bookid));
+                    RemovedBook?.Invoke(this, new StorageEventArgs("You've successfully removed book \"" + book.Name +
+                                                                   "\" from library \"" + Name + "\", book ID: " +
+                                                                   bookid, bookid));
                 }
                 else
                     throw new BooksNotReturnedException();
             }
+            else
+                throw new WrongIdException();
         }
 
         /// <summary>

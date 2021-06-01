@@ -50,6 +50,7 @@ namespace LibraryFront
                                 Console.Write("Enter ID of your account: ");
                                 int id = Convert.ToInt32(Console.ReadLine());
                                 UserAccount acc = lib.Login(id);
+                                Console.WriteLine("\n\n\n\n\n\n\n");
                                 ShowUserMenu(lib, acc);
                             }
                             else if (t == 2)
@@ -57,6 +58,7 @@ namespace LibraryFront
                                 Console.Write("Enter password: ");
                                 string pass = Console.ReadLine();
                                 LibrarianAccount acc = lib.LoginAsAdmin(pass);
+                                Console.WriteLine("\n\n\n\n\n\n\n");
                                 ShowAdminMenu(lib, acc);
                             }
                             else
@@ -158,10 +160,12 @@ namespace LibraryFront
                             if (confirmation == "DELETE MY ACCOUNT")
                                 lib.RemoveAccount(account.Id);
                             alive = false;
+                            Console.WriteLine("\n\n\n\n\n\n\n");
                             break;
                         case 7:
                             account.LogOut();
                             alive = false;
+                            Console.WriteLine("\n\n\n\n\n\n\n");
                             break;
                     }
                 }
@@ -257,7 +261,7 @@ namespace LibraryFront
                             string fileName = Console.ReadLine();
                             if (fileName == null)
                                 throw new Exception("Please, type name of file and try again");
-                        
+
                             using (var reader = new StreamReader(fileName))
                             {
                                 while (!reader.EndOfStream)
@@ -267,17 +271,23 @@ namespace LibraryFront
                                     lib.AddBook(values[0], values[1], values[2], Convert.ToInt32(values[3]));
                                 }
                             }
+
                             Console.WriteLine("Import successful!");
                             break;
                         case 6:
                             account.LogOut();
                             alive = false;
+                            Console.WriteLine("\n\n\n\n\n\n\n");
                             break;
                     }
                 }
                 catch (WrongIdException)
                 {
                     ExceptionHandler("You've entered wrong ID, try again!");
+                }
+                catch (BooksNotReturnedException)
+                {
+                    ExceptionHandler("Not all users returned this book!");
                 }
                 catch (FormatException)
                 {
